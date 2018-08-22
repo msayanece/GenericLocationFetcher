@@ -17,6 +17,7 @@ import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -30,7 +31,10 @@ import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResolvableApiException;
 import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationAvailability;
+import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.location.LocationSettingsResponse;
@@ -188,11 +192,43 @@ public class LocationFetchHelper {
         private LocationRequest mLocationRequest;
         private FetchLocationSuccessListener mListener;
         private FetchLocationFalureListener mfailureListener;
+        private boolean mRequestingLocationUpdates = false;
+        private LocationCallback mLocationCallback = new LocationCallback(){
+            @Override
+            public void onLocationResult(LocationResult locationResult) {
+                super.onLocationResult(locationResult);
+                afterLocationFetchSucceed(locationResult.getLastLocation());
+            }
+
+            @Override
+            public void onLocationAvailability(LocationAvailability locationAvailability) {
+                super.onLocationAvailability(locationAvailability);
+                if (!locationAvailability.isLocationAvailable()){
+                    afterLocationFetchFailed("Unable to fetch your location");
+                }
+            }
+        };
 
         @Override
         protected void onCreate(@Nullable Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
             initiateLocationRequest();
+        }
+
+        @Override
+        protected void onResume() {
+            super.onResume();
+            if (mRequestingLocationUpdates) {
+                startLocationUpdates();
+            }
+        }
+
+        @Override
+        protected void onPause() {
+            super.onPause();
+            if (mRequestingLocationUpdates) {
+                stopLocationUpdates();
+            }
         }
 
         private void initiateLocationRequest() {
@@ -311,6 +347,19 @@ public class LocationFetchHelper {
             }
         }
 
+        @SuppressLint("MissingPermission")
+        private void startLocationUpdates() {
+            mFusedLocationClient.requestLocationUpdates(mLocationRequest,
+                    mLocationCallback,
+                    Looper.myLooper() /* Looper */);
+            mRequestingLocationUpdates = true;
+        }
+
+        private void stopLocationUpdates() {
+            mFusedLocationClient.removeLocationUpdates(mLocationCallback);
+            mRequestingLocationUpdates = true;
+        }
+
         //fetch location
         @SuppressLint("MissingPermission")
         private void getCurrentLocation() {
@@ -339,7 +388,7 @@ public class LocationFetchHelper {
                         //try another time
                         mFusedLocationClient.getLastLocation().addOnSuccessListener(LocationFetchActivity.this, this);
                     } else {
-                        afterLocationFetchFailed("Unable to fetch your location");
+                        startLocationUpdates();
                     }
                 }
             }
@@ -443,6 +492,23 @@ public class LocationFetchHelper {
         public static final int REQUEST_CODE_ALARM = 1011;
         private FetchLocationSuccessListener mListener;
         private GoogleApiClient mGoogleApiClient;
+        private LocationRequest mLocationRequest;
+        private LocationCallback mLocationCallback = new LocationCallback(){
+            @Override
+            public void onLocationResult(LocationResult locationResult) {
+                super.onLocationResult(locationResult);
+                afterLocationFetchSucceed(locationResult.getLastLocation());
+            }
+
+            @Override
+            public void onLocationAvailability(LocationAvailability locationAvailability) {
+                super.onLocationAvailability(locationAvailability);
+                if (!locationAvailability.isLocationAvailable()){
+                    afterLocationFetchFailed("Unable to fetch your location");
+                }
+            }
+        };
+
 
         @Nullable
         @Override
@@ -469,6 +535,15 @@ public class LocationFetchHelper {
                     .addApi(Places.PLACE_DETECTION_API)
                     .build();
             mGoogleApiClient.connect();
+            createLocationRequest();
+        }
+
+        //first call this method
+        protected void createLocationRequest() {
+            mLocationRequest = new LocationRequest();
+            mLocationRequest.setInterval(LocationFetchHelperSingleton.getInstance().getLocationIntervalTime());
+            mLocationRequest.setFastestInterval(LocationFetchHelperSingleton.getInstance().getLocationFastestIntervalTime());
+            mLocationRequest.setPriority(LocationFetchHelperSingleton.getInstance().getLocationPriority());
         }
 
         //then this method
@@ -504,7 +579,17 @@ public class LocationFetchHelper {
                     .getLastLocation(mGoogleApiClient);
             if (location != null)
                 afterLocationFetchSucceed(location);
-            else afterLocationFetchFailed("unable to fetch your current Location");
+            else
+                startLocationUpdates();
+//                afterLocationFetchFailed("unable to fetch your current Location");
+        }
+
+
+        @SuppressLint("MissingPermission")
+        private void startLocationUpdates() {
+            LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest,
+                    mLocationCallback,
+                    null /* Looper */);
         }
 
         private void afterLocationFetchFailed(String errorMessage) {

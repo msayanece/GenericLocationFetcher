@@ -24,7 +24,7 @@ public class MainActivity extends AppCompatActivity {
             public void run() {
                 stopLocationUpdates();
             }
-        }, 10000);
+        }, 100000);
     }
 
     private void fetchLocation(){
@@ -51,12 +51,17 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void startLocationService(){
-        new LocationFetchHelper(this, null, new FetchLocationFalureListener() {
+        new LocationFetchHelper(this, new FetchLocationSuccessListener() {
+            @Override
+            public void onLocationFetched(double latitude, double longitude) {
+                Toast.makeText(MainActivity.this, "Lat: " + latitude + ", Lon: " + longitude, Toast.LENGTH_SHORT).show();
+            }
+        }, new FetchLocationFalureListener() {
             @Override
             public void onLocationFetchFailed(String errorMessage) {
                 Toast.makeText(MainActivity.this, errorMessage, Toast.LENGTH_SHORT).show();
             }
-        }, 30*60*1000, 15*60*1000, LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY, true);
+        }, 30 * 60 * 1000, 15 * 60 * 1000, LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY, true);
     }
 
     private void stopLocationUpdates(){
