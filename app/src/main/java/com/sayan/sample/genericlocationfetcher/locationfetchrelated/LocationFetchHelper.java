@@ -543,7 +543,15 @@ public class LocationFetchHelper {
             mLocationRequest = new LocationRequest();
             mLocationRequest.setInterval(LocationFetchHelperSingleton.getInstance().getLocationIntervalTime());
             mLocationRequest.setFastestInterval(LocationFetchHelperSingleton.getInstance().getLocationFastestIntervalTime());
-            mLocationRequest.setPriority(LocationFetchHelperSingleton.getInstance().getLocationPriority());
+            try {
+                mLocationRequest.setPriority(LocationFetchHelperSingleton.getInstance().getLocationPriority());
+            } catch (IllegalArgumentException e) {
+                try {
+                    mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
+                } catch (IllegalArgumentException ex){
+                    ex.printStackTrace();
+                }
+            }
         }
 
         //then this method
