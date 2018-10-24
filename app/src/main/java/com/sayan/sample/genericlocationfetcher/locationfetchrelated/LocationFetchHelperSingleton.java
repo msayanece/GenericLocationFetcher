@@ -2,6 +2,8 @@ package com.sayan.sample.genericlocationfetcher.locationfetchrelated;
 
 import android.content.Context;
 
+import com.google.android.gms.location.LocationRequest;
+
 public class LocationFetchHelperSingleton {
 
     private static LocationFetchHelperSingleton instance;
@@ -12,6 +14,9 @@ public class LocationFetchHelperSingleton {
     private FetchLocationSuccessListener fetchLocationListener;
     private FetchLocationFalureListener fetchLocationFailureListener;
     private Context context;
+    private LocationPermissionListener locationPermissionListener;
+    private boolean isOnlyPermissionCheck;
+    private LocationRequest locationRequest;
 
 
     private LocationFetchHelperSingleton() {
@@ -79,5 +84,29 @@ public class LocationFetchHelperSingleton {
 
     public void setFetchLocationFailureListener(FetchLocationFalureListener fetchLocationFailureListener) {
         this.fetchLocationFailureListener = fetchLocationFailureListener;
+    }
+
+    public void setLocationPermissionListener(LocationPermissionListener locationPermissionListener) {
+        this.locationPermissionListener = locationPermissionListener;
+    }
+
+    public LocationPermissionListener getLocationPermissionListener() {
+        return locationPermissionListener;
+    }
+
+    public void setIsOnlyPermissionCheck(boolean isOnlyPermissionCheck) {
+        this.isOnlyPermissionCheck = isOnlyPermissionCheck;
+    }
+
+    public boolean getIsOnlyPermissionCheck() {
+        return isOnlyPermissionCheck;
+    }
+
+    public void setLocationRequest(LocationRequest locationRequest) {
+        this.locationRequest = locationRequest;
+    }
+
+    public LocationRequest getLocationRequest() {
+        return locationRequest;
     }
 }

@@ -10,21 +10,47 @@ import com.google.android.gms.location.LocationServices;
 import com.sayan.sample.genericlocationfetcher.locationfetchrelated.FetchLocationFalureListener;
 import com.sayan.sample.genericlocationfetcher.locationfetchrelated.FetchLocationSuccessListener;
 import com.sayan.sample.genericlocationfetcher.locationfetchrelated.LocationFetchHelper;
+import com.sayan.sample.genericlocationfetcher.locationfetchrelated.LocationPermissionListener;
 
 public class MainActivity extends AppCompatActivity {
+    private static final long LOCATION_FASTEST_INTERVAL = 5 * 1000;
+    private static final long LOCATION_INTERVAL = 20 * 1000;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 //        fetchLocation();
-        startLocationService();
-        new Handler().postDelayed(new Runnable() {
+//        startLocationService();
+//        new Handler().postDelayed(new Runnable() {
+//            @Override
+//            public void run() {
+//                stopLocationUpdates();
+//            }
+//        }, 100000);
+        getLocationPermission();
+    }
+
+    private void getLocationPermission() {
+        new LocationFetchHelper(this, createLocationRequest(), new LocationPermissionListener() {
             @Override
-            public void run() {
-                stopLocationUpdates();
+            public void onPermissionGranted() {
+                Toast.makeText(MainActivity.this, "granted", Toast.LENGTH_SHORT).show();
             }
-        }, 100000);
+
+            @Override
+            public void onPermissionDenied(String errorMessage) {
+                Toast.makeText(MainActivity.this, errorMessage, Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    protected LocationRequest createLocationRequest() {
+        LocationRequest locationRequest = new LocationRequest();
+        locationRequest.setInterval(LOCATION_INTERVAL);
+        locationRequest.setFastestInterval(LOCATION_FASTEST_INTERVAL);
+        locationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
+        return locationRequest;
     }
 
     private void fetchLocation(){
