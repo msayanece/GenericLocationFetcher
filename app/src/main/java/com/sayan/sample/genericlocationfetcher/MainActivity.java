@@ -30,6 +30,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void getLocationPermission() {
+
         new LocationFetchHelper(this, createLocationRequest(), new LocationPermissionListener() {
             @Override
             public void onPermissionGranted() {

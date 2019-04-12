@@ -9,6 +9,12 @@
         <activity
             android:name=".deprecated.LocationFetchHelper$LocationFetchActivity"
             android:theme="@style/Theme.AppCompat.Translucent" />
+        <activity
+            android:name=".newsdk.LocationFetchManagerImplementer$LocationPermissionCheckActivity"
+            android:theme="@style/Theme.AppCompat.Translucent" />
+        <activity
+            android:name=".newsdk.LocationFetchManagerImplementer$LocationFetchActivity"
+            android:theme="@style/Theme.AppCompat.Translucent" />
 
         <service
             android:name=".deprecated.LocationFetchHelper$LocationFetchService"
