@@ -1,4 +1,4 @@
-package com.sayan.sample.genericlocationfetcher.locationfetchrelated;
+package com.checkmyuniverse.locationfetchhelper;
 
 import android.Manifest;
 import android.annotation.SuppressLint;

@@ -1,16 +1,14 @@
 package com.sayan.sample.genericlocationfetcher;
 
-import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.Toast;
 
+import com.checkmyuniverse.locationfetchhelper.FetchLocationFalureListener;
+import com.checkmyuniverse.locationfetchhelper.FetchLocationSuccessListener;
+import com.checkmyuniverse.locationfetchhelper.LocationFetchHelper;
+import com.checkmyuniverse.locationfetchhelper.LocationPermissionListener;
 import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationServices;
-import com.sayan.sample.genericlocationfetcher.locationfetchrelated.FetchLocationFalureListener;
-import com.sayan.sample.genericlocationfetcher.locationfetchrelated.FetchLocationSuccessListener;
-import com.sayan.sample.genericlocationfetcher.locationfetchrelated.LocationFetchHelper;
-import com.sayan.sample.genericlocationfetcher.locationfetchrelated.LocationPermissionListener;
 
 public class MainActivity extends AppCompatActivity {
     private static final long LOCATION_FASTEST_INTERVAL = 5 * 1000;

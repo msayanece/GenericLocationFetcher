@@ -22,26 +22,7 @@
             </intent-filter>
         </activity>
 
-        <activity
-            android:name=".locationfetchrelated.LocationFetchHelper$LocationFetchActivity"
-            android:theme="@style/Theme.AppCompat.Translucent" />
 
-        <service
-            android:name=".locationfetchrelated.LocationFetchHelper$LocationFetchService"
-            android:enabled="true"
-            android:exported="true" />
-        <receiver
-            android:name=".locationfetchrelated.AlarmBootReceiver"
-            android:enabled="true"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED" />
-            </intent-filter>
-        </receiver>
-        <receiver
-            android:name=".locationfetchrelated.AlarmBroadcastReceiver"
-            android:enabled="true"
-            android:exported="true" />
     </application>
 
 </manifest>

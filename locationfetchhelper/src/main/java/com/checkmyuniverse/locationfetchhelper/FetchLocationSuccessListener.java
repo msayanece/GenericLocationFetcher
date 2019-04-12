@@ -1,4 +1,4 @@
-package com.sayan.sample.genericlocationfetcher.locationfetchrelated;
+package com.checkmyuniverse.locationfetchhelper;
 
 /**
  * Location fetch listener for getting location callbacks

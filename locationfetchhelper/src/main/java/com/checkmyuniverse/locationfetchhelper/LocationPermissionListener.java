@@ -1,4 +1,4 @@
-package com.sayan.sample.genericlocationfetcher.locationfetchrelated;
+package com.checkmyuniverse.locationfetchhelper;
 
 public interface LocationPermissionListener {
     void onPermissionGranted();

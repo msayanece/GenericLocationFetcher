@@ -1,0 +1,13 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.checkmyuniverse.locationfetchhelper" >
+    <application>
+        <activity
+            android:name="LocationFetchHelper$LocationFetchActivity"
+            android:theme="@style/Theme.AppCompat.Translucent" />
+
+        <service
+            android:name="LocationFetchHelper$LocationFetchService"
+            android:enabled="true"
+            android:exported="true" />
+    </application>
+</manifest>
