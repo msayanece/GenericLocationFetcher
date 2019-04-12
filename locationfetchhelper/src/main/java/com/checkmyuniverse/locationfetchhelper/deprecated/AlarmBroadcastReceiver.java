@@ -1,4 +1,4 @@
-package com.checkmyuniverse.locationfetchhelper;
+package com.checkmyuniverse.locationfetchhelper.deprecated;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;

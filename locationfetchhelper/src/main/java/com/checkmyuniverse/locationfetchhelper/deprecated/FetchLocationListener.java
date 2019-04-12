@@ -1,4 +1,4 @@
-package com.checkmyuniverse.locationfetchhelper;
+package com.checkmyuniverse.locationfetchhelper.deprecated;
 
 public interface FetchLocationListener {
     void onLocationFetched(double latitude, double longitude);

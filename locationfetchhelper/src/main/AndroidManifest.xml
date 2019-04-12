@@ -7,11 +7,11 @@
 
     <application>
         <activity
-            android:name="LocationFetchHelper$LocationFetchActivity"
+            android:name=".deprecated.LocationFetchHelper$LocationFetchActivity"
             android:theme="@style/Theme.AppCompat.Translucent" />
 
         <service
-            android:name="LocationFetchHelper$LocationFetchService"
+            android:name=".deprecated.LocationFetchHelper$LocationFetchService"
             android:enabled="true"
             android:exported="true" />
     </application>

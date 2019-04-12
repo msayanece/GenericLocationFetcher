@@ -1,4 +1,4 @@
-package com.checkmyuniverse.locationfetchhelper;
+package com.checkmyuniverse.locationfetchhelper.deprecated;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -76,6 +76,7 @@ import com.google.android.gms.tasks.Task;
  * android:exported="true" /&gt;
  * </p>
  */
+@Deprecated
 public class LocationFetchHelper {
     private Context context;
 
@@ -94,6 +95,7 @@ public class LocationFetchHelper {
      *                         rebooting it may continue
      *                         </p>
      */
+    @Deprecated
     public LocationFetchHelper(Context context, FetchLocationSuccessListener mListener, FetchLocationFalureListener mFailureListener, boolean shouldUseService) {
         this.context = context;
         LocationFetchHelperSingleton.getInstance().setFetchLocationListener(mListener);
@@ -133,6 +135,7 @@ public class LocationFetchHelper {
      *                                    rebooting it may continue
      *                                    </p>
      */
+    @Deprecated
     public LocationFetchHelper(Context context, FetchLocationSuccessListener mListener, FetchLocationFalureListener mFailureListener, long locationIntervalTime, long locationFastestIntervalTime, int locationPriority, boolean shouldUseService) {
         this.context = context;
         LocationFetchHelperSingleton.getInstance().setFetchLocationListener(mListener);
@@ -149,9 +152,11 @@ public class LocationFetchHelper {
      * <p>
      *  @param context                    use Activity context
      *                                   </p><p>
-     * @param locationRequest
+     * @param locationRequest the {@link LocationRequest} Object with the location priority for fetching location;
+     *
      * @param locationPermissionListener listener for getting location permission callbacks (success or failed) {@link LocationPermissionListener}
      */
+    @Deprecated
     public LocationFetchHelper(Context context, LocationRequest locationRequest, LocationPermissionListener locationPermissionListener) {
         this.context = context;
         LocationFetchHelperSingleton.getInstance().setLocationPermissionListener(locationPermissionListener);

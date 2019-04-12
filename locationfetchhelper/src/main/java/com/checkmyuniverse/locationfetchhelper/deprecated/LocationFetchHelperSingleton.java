@@ -1,4 +1,4 @@
-package com.checkmyuniverse.locationfetchhelper;
+package com.checkmyuniverse.locationfetchhelper.deprecated;
 
 import android.content.Context;
 
@@ -22,42 +22,42 @@ public class LocationFetchHelperSingleton {
     private LocationFetchHelperSingleton() {
     }
 
-    public static LocationFetchHelperSingleton getInstance() {
+    static LocationFetchHelperSingleton getInstance() {
         if (instance == null) {
             instance = new LocationFetchHelperSingleton();
         }
         return instance;
     }
 
-    public int getLocationPriority() {
+    int getLocationPriority() {
         return locationPriority;
     }
 
-    public void setLocationPriority(int locationPriority) {
+    void setLocationPriority(int locationPriority) {
         this.locationPriority = locationPriority;
     }
 
-    public long getLocationIntervalTime() {
+    long getLocationIntervalTime() {
         return locationIntervalTime;
     }
 
-    public void setLocationIntervalTime(long locationIntervalTime) {
+    void setLocationIntervalTime(long locationIntervalTime) {
         this.locationIntervalTime = locationIntervalTime;
     }
 
-    public long getLocationFastestIntervalTime() {
+    long getLocationFastestIntervalTime() {
         return locationFastestIntervalTime;
     }
 
-    public void setLocationFastestIntervalTime(long locationFastestIntervalTime) {
+    void setLocationFastestIntervalTime(long locationFastestIntervalTime) {
         this.locationFastestIntervalTime = locationFastestIntervalTime;
     }
 
-    public FetchLocationSuccessListener getFetchLocationListener() {
+    FetchLocationSuccessListener getFetchLocationListener() {
         return fetchLocationListener;
     }
 
-    public void setFetchLocationListener(FetchLocationSuccessListener fetchLocationListener) {
+    void setFetchLocationListener(FetchLocationSuccessListener fetchLocationListener) {
         this.fetchLocationListener = fetchLocationListener;
     }
 
@@ -66,47 +66,47 @@ public class LocationFetchHelperSingleton {
         return context;
     }
 
-    public void setContext(Context context) {
+    void setContext(Context context) {
         this.context = context;
     }
 
-    public boolean isShouldUseService() {
+    boolean isShouldUseService() {
         return shouldUseService;
     }
 
-    public void setShouldUseService(boolean shouldUseService) {
+    void setShouldUseService(boolean shouldUseService) {
         this.shouldUseService = shouldUseService;
     }
 
-    public FetchLocationFalureListener getFetchLocationFailureListener() {
+    FetchLocationFalureListener getFetchLocationFailureListener() {
         return fetchLocationFailureListener;
     }
 
-    public void setFetchLocationFailureListener(FetchLocationFalureListener fetchLocationFailureListener) {
+    void setFetchLocationFailureListener(FetchLocationFalureListener fetchLocationFailureListener) {
         this.fetchLocationFailureListener = fetchLocationFailureListener;
     }
 
-    public void setLocationPermissionListener(LocationPermissionListener locationPermissionListener) {
+    void setLocationPermissionListener(LocationPermissionListener locationPermissionListener) {
         this.locationPermissionListener = locationPermissionListener;
     }
 
-    public LocationPermissionListener getLocationPermissionListener() {
+    LocationPermissionListener getLocationPermissionListener() {
         return locationPermissionListener;
     }
 
-    public void setIsOnlyPermissionCheck(boolean isOnlyPermissionCheck) {
+    void setIsOnlyPermissionCheck(boolean isOnlyPermissionCheck) {
         this.isOnlyPermissionCheck = isOnlyPermissionCheck;
     }
 
-    public boolean getIsOnlyPermissionCheck() {
+    boolean getIsOnlyPermissionCheck() {
         return isOnlyPermissionCheck;
     }
 
-    public void setLocationRequest(LocationRequest locationRequest) {
+    void setLocationRequest(LocationRequest locationRequest) {
         this.locationRequest = locationRequest;
     }
 
-    public LocationRequest getLocationRequest() {
+    LocationRequest getLocationRequest() {
         return locationRequest;
     }
 }

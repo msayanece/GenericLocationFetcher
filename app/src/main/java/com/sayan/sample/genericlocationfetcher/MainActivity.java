@@ -4,10 +4,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.Toast;
 
-import com.checkmyuniverse.locationfetchhelper.FetchLocationFalureListener;
-import com.checkmyuniverse.locationfetchhelper.FetchLocationSuccessListener;
-import com.checkmyuniverse.locationfetchhelper.LocationFetchHelper;
-import com.checkmyuniverse.locationfetchhelper.LocationPermissionListener;
+import com.checkmyuniverse.locationfetchhelper.deprecated.FetchLocationFalureListener;
+import com.checkmyuniverse.locationfetchhelper.deprecated.FetchLocationSuccessListener;
+import com.checkmyuniverse.locationfetchhelper.deprecated.LocationFetchHelper;
+import com.checkmyuniverse.locationfetchhelper.deprecated.LocationPermissionListener;
 import com.google.android.gms.location.LocationRequest;
 
 public class MainActivity extends AppCompatActivity {
