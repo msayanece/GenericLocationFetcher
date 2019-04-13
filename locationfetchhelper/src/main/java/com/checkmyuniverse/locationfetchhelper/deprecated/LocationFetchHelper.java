@@ -45,10 +45,15 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 
 /**
+ * @deprecated
+ * <p>
+ *     Recommended use {@link com.checkmyuniverse.locationfetchhelper.newsdk.LocationFetchManager} class
+ * </p>
+ * <p>
  * Generic plain java class which will help to fetch location by using Activity or Service & alarm
  * manager & alarm broadcast & on boot complete broadcast etc.
  * Add the following line of code in the manifest under the application tag
- * <p> </br>
+ * </p><p> </br>
  * &lt;activity
  * android:name=".locationfetchrelated.LocationFetchHelper$LocationFetchActivity"
  * android:theme="@style/Theme.AppCompat.Translucent" /&gt;
@@ -75,6 +80,7 @@ import com.google.android.gms.tasks.Task;
  * android:enabled="true"
  * android:exported="true" /&gt;
  * </p>
+ *
  */
 @Deprecated
 public class LocationFetchHelper {

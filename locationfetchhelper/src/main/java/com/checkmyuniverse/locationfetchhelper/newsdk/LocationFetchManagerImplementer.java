@@ -41,11 +41,11 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 
 /**
- * Generic plain java class which will help to fetch location by using Activity or Service & alarm
- * manager & alarm broadcast & on boot complete broadcast etc.
- * Add the following line of code in the manifest under the application tag
+ * @author Sayan Mukher
+ * @version 0.1
+ * Generic plain java class which will help to fetch location
  */
-public class LocationFetchManagerImplementer implements LocationFetchManager {
+public final class LocationFetchManagerImplementer implements LocationFetchManager {
     private static LocationFetchManager instance;
     private Context context;
 
@@ -130,13 +130,7 @@ public class LocationFetchManagerImplementer implements LocationFetchManager {
         startLocationFetchActivity();
     }
 
-    /**
-     * Use this method for checking location permission
-     * <p>
-     *
-     * @param locationRequest            the {@link LocationRequest} custom Object with the location priority for fetching location. You may pass a null argument for default implementation, this will forcefully use high accuracy permission
-     * @param locationPermissionListener listener for getting location permission callbacks (success or failed) {@link LocationPermissionListener}
-     */
+
     @Override
     public void checkPermission(@Nullable LocationRequest locationRequest, @NonNull LocationPermissionListener locationPermissionListener) {
         LocationFetchHelperSingleton.getInstance().setLocationPermissionListener(locationPermissionListener);
@@ -145,12 +139,6 @@ public class LocationFetchManagerImplementer implements LocationFetchManager {
         startLocationPermissionCheckActivity(true);
     }
 
-    /**
-     * Use this method for checking location permission
-     *
-     * @param isHighAccuracy             if true, will request permission for high accuracy, else will request for balanced power
-     * @param locationPermissionListener listener for getting location permission callbacks (success or failed) {@link LocationPermissionListener}
-     */
     @Override
     public void checkPermission(boolean isHighAccuracy, @NonNull LocationPermissionListener locationPermissionListener) {
         LocationFetchHelperSingleton.getInstance().setLocationPermissionListener(locationPermissionListener);
@@ -159,12 +147,7 @@ public class LocationFetchManagerImplementer implements LocationFetchManager {
         startLocationPermissionCheckActivity(isHighAccuracy);
     }
 
-    /**
-     * Use this method for checking location permission
-     *
-     * @param locationPriority           will only take {@link LocationRequest} priority, will only work on LocationRequest.PRIORITY_HIGH_ACCURACY and LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY for now
-     * @param locationPermissionListener listener for getting location permission callbacks (success or failed) {@link LocationPermissionListener}
-     */
+
     @Override
     public void checkPermission(int locationPriority, @NonNull LocationPermissionListener locationPermissionListener) {
         boolean isHighAccuracy = false;
@@ -177,12 +160,7 @@ public class LocationFetchManagerImplementer implements LocationFetchManager {
         startLocationPermissionCheckActivity(isHighAccuracy);
     }
 
-    /**
-     * Use this method for checking location permission
-     * <p>
-     *
-     * @param locationPermissionListener listener for getting location permission callbacks (success or failed) {@link LocationPermissionListener}
-     */
+
     @Override
     public void checkHighAccuracyPermission(LocationPermissionListener locationPermissionListener) {
         LocationFetchHelperSingleton.getInstance().setLocationPermissionListener(locationPermissionListener);
@@ -191,12 +169,6 @@ public class LocationFetchManagerImplementer implements LocationFetchManager {
         startLocationPermissionCheckActivity(true);
     }
 
-    /**
-     * Use this method for checking location permission
-     * <p>
-     *
-     * @param locationPermissionListener listener for getting location permission callbacks (success or failed) {@link LocationPermissionListener}
-     */
     @Override
     public void checkBalancedPowerPermission(@NonNull LocationPermissionListener locationPermissionListener) {
         LocationFetchHelperSingleton.getInstance().setLocationPermissionListener(locationPermissionListener);

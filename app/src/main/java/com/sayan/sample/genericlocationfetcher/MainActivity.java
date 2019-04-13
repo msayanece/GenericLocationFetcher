@@ -32,18 +32,18 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void getLocationPermission() {
-//        LocationFetchManager locationFetchManager = LocationFetchManager.getInstance(this);
-//        locationFetchManager.checkHighAccuracyPermission(new LocationPermissionListener() {
-//            @Override
-//            public void onPermissionGranted() {
-//                Toast.makeText(MainActivity.this, "granted", Toast.LENGTH_SHORT).show();
-//            }
-//
-//            @Override
-//            public void onPermissionDenied(String errorMessage) {
-//                Toast.makeText(MainActivity.this, errorMessage, Toast.LENGTH_SHORT).show();
-//            }
-//        });
+        LocationFetchManager locationFetchManager = LocationFetchManager.getInstance(this);
+        locationFetchManager.checkHighAccuracyPermission(new LocationPermissionListener() {
+            @Override
+            public void onPermissionGranted() {
+                Toast.makeText(MainActivity.this, "granted", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onPermissionDenied(String errorMessage) {
+                Toast.makeText(MainActivity.this, errorMessage, Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     protected LocationRequest createLocationRequest() {
