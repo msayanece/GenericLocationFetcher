@@ -8,6 +8,8 @@ import com.checkmyuniverse.locationfetchhelper.deprecated.FetchLocationFalureLis
 import com.checkmyuniverse.locationfetchhelper.deprecated.FetchLocationSuccessListener;
 import com.checkmyuniverse.locationfetchhelper.deprecated.LocationFetchHelper;
 import com.checkmyuniverse.locationfetchhelper.deprecated.LocationPermissionListener;
+import com.checkmyuniverse.locationfetchhelper.newsdk.LocationFetchManager;
+import com.checkmyuniverse.locationfetchhelper.newsdk.LocationFetchManagerImplementer;
 import com.google.android.gms.location.LocationRequest;
 
 public class MainActivity extends AppCompatActivity {
@@ -30,8 +32,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void getLocationPermission() {
-
-        new LocationFetchHelper(this, createLocationRequest(), new LocationPermissionListener() {
+        LocationFetchManager locationFetchManager = LocationFetchManager.getInstance(this);
+        locationFetchManager.checkHighAccuracyPermission(new LocationPermissionListener() {
             @Override
             public void onPermissionGranted() {
                 Toast.makeText(MainActivity.this, "granted", Toast.LENGTH_SHORT).show();

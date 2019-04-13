@@ -20,6 +20,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.checkmyuniverse.locationfetchhelper.deprecated.FetchLocationFalureListener;
 import com.checkmyuniverse.locationfetchhelper.deprecated.FetchLocationSuccessListener;
@@ -45,9 +46,22 @@ import com.google.android.gms.tasks.Task;
  * Add the following line of code in the manifest under the application tag
  */
 public class LocationFetchManagerImplementer implements LocationFetchManager {
+    private static LocationFetchManager instance;
     private Context context;
 
-    public LocationFetchManagerImplementer(Context context) {
+    {
+        instance = this;
+    }
+
+    static LocationFetchManager getInstance() {
+        return instance;
+    }
+
+    void addNewContext(Context context) {
+        this.context = context;
+    }
+
+    LocationFetchManagerImplementer(Context context) {
         this.context = context;
     }
 
@@ -66,7 +80,7 @@ public class LocationFetchManagerImplementer implements LocationFetchManager {
      *                         rebooting it may continue
      *                         </p>
      */
-    public LocationFetchManagerImplementer(Context context, FetchLocationSuccessListener mListener, FetchLocationFalureListener mFailureListener, boolean shouldUseService) {
+    LocationFetchManagerImplementer(Context context, FetchLocationSuccessListener mListener, FetchLocationFalureListener mFailureListener, boolean shouldUseService) {
         this.context = context;
         LocationFetchHelperSingleton.getInstance().setFetchLocationListener(mListener);
         LocationFetchHelperSingleton.getInstance().setFetchLocationFailureListener(mFailureListener);
@@ -105,7 +119,7 @@ public class LocationFetchManagerImplementer implements LocationFetchManager {
      *                                    rebooting it may continue
      *                                    </p>
      */
-    public LocationFetchManagerImplementer(Context context, FetchLocationSuccessListener mListener, FetchLocationFalureListener mFailureListener, long locationIntervalTime, long locationFastestIntervalTime, int locationPriority, boolean shouldUseService) {
+    LocationFetchManagerImplementer(Context context, FetchLocationSuccessListener mListener, FetchLocationFalureListener mFailureListener, long locationIntervalTime, long locationFastestIntervalTime, int locationPriority, boolean shouldUseService) {
         this.context = context;
         LocationFetchHelperSingleton.getInstance().setFetchLocationListener(mListener);
         LocationFetchHelperSingleton.getInstance().setFetchLocationFailureListener(mFailureListener);
@@ -120,8 +134,7 @@ public class LocationFetchManagerImplementer implements LocationFetchManager {
      * Use this method for checking location permission
      * <p>
      *
-     * @param locationRequest the {@link LocationRequest} custom Object with the location priority for fetching location. You may pass a null argument for default implementation, this will forcefully use high accuracy permission
-     *
+     * @param locationRequest            the {@link LocationRequest} custom Object with the location priority for fetching location. You may pass a null argument for default implementation, this will forcefully use high accuracy permission
      * @param locationPermissionListener listener for getting location permission callbacks (success or failed) {@link LocationPermissionListener}
      */
     @Override
@@ -134,7 +147,8 @@ public class LocationFetchManagerImplementer implements LocationFetchManager {
 
     /**
      * Use this method for checking location permission
-     * @param isHighAccuracy if true, will request permission for high accuracy, else will request for balanced power
+     *
+     * @param isHighAccuracy             if true, will request permission for high accuracy, else will request for balanced power
      * @param locationPermissionListener listener for getting location permission callbacks (success or failed) {@link LocationPermissionListener}
      */
     @Override
@@ -147,7 +161,8 @@ public class LocationFetchManagerImplementer implements LocationFetchManager {
 
     /**
      * Use this method for checking location permission
-     * @param locationPriority will only take {@link LocationRequest} priority, will only work on LocationRequest.PRIORITY_HIGH_ACCURACY and LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY for now
+     *
+     * @param locationPriority           will only take {@link LocationRequest} priority, will only work on LocationRequest.PRIORITY_HIGH_ACCURACY and LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY for now
      * @param locationPermissionListener listener for getting location permission callbacks (success or failed) {@link LocationPermissionListener}
      */
     @Override
@@ -156,7 +171,7 @@ public class LocationFetchManagerImplementer implements LocationFetchManager {
         LocationFetchHelperSingleton.getInstance().setLocationPermissionListener(locationPermissionListener);
         LocationFetchHelperSingleton.getInstance().setIsOnlyPermissionCheck(true);
         LocationFetchHelperSingleton.getInstance().setLocationRequest(null);
-        if (locationPriority == LocationRequest.PRIORITY_HIGH_ACCURACY){
+        if (locationPriority == LocationRequest.PRIORITY_HIGH_ACCURACY) {
             isHighAccuracy = true;
         }
         startLocationPermissionCheckActivity(isHighAccuracy);
@@ -246,9 +261,9 @@ public class LocationFetchManagerImplementer implements LocationFetchManager {
             LocationRequest locationRequest = new LocationRequest();
             locationRequest.setInterval(LOCATION_INTERVAL);
             locationRequest.setFastestInterval(LOCATION_FASTEST_INTERVAL);
-            if (isHighAccuracy){
+            if (isHighAccuracy) {
                 locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-            }else {
+            } else {
                 locationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
             }
             return locationRequest;
@@ -256,12 +271,13 @@ public class LocationFetchManagerImplementer implements LocationFetchManager {
 
         //then this method
         public void requestPermissionForLocation() {
-            if (ContextCompat.checkSelfPermission(getApplicationContext(),
+            if (ContextCompat.checkSelfPermission(this,
                     Manifest.permission.ACCESS_FINE_LOCATION)
-                    != PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(getApplicationContext(),
+                    != PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(this,
                     Manifest.permission.ACCESS_COARSE_LOCATION)
                     != PackageManager.PERMISSION_GRANTED) {
                 // not granted, explanation?
+                Toast.makeText(this, "Initiating permission request...", Toast.LENGTH_SHORT).show();
                 if (ActivityCompat.shouldShowRequestPermissionRationale(this,
                         Manifest.permission.ACCESS_FINE_LOCATION)) {
                     ActivityCompat.requestPermissions(this,
@@ -281,9 +297,9 @@ public class LocationFetchManagerImplementer implements LocationFetchManager {
         //permission granted
         private void handleLocationRequestPermissionResult() {
             LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder();
-            if (LocationFetchHelperSingleton.getInstance().getLocationRequest() != null){
+            if (LocationFetchHelperSingleton.getInstance().getLocationRequest() != null) {
                 builder.addLocationRequest(LocationFetchHelperSingleton.getInstance().getLocationRequest());
-            }else {
+            } else {
                 builder.addLocationRequest(createLocationRequest());
             }
             Task<LocationSettingsResponse> task =
@@ -294,8 +310,8 @@ public class LocationFetchManagerImplementer implements LocationFetchManager {
                     try {
                         LocationSettingsResponse response = task.getResult(ApiException.class);
                         /* requests here.
-                        * All location settings are satisfied. The client can initialize location
-                        */
+                         * All location settings are satisfied. The client can initialize location
+                         */
                         if (LocationFetchHelperSingleton.getInstance().getLocationPermissionListener() != null) {
                             LocationFetchHelperSingleton.getInstance().getLocationPermissionListener().onPermissionGranted();
                             finish();
@@ -314,6 +330,7 @@ public class LocationFetchManagerImplementer implements LocationFetchManager {
                                     /* Show the progressDialog by calling startResolutionForResult(),
                                      * and check the result in onActivityResult().
                                      */
+                                    Toast.makeText(LocationPermissionCheckActivity.this, "Initiating permission request...", Toast.LENGTH_SHORT).show();
                                     resolvable.startResolutionForResult(
                                             LocationPermissionCheckActivity.this,
                                             REQUEST_CHECK_SETTINGS);
@@ -531,9 +548,9 @@ public class LocationFetchManagerImplementer implements LocationFetchManager {
         //permission granted
         private void handleLocationRequestPermission() {
             LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder();
-            if (LocationFetchHelperSingleton.getInstance().getIsOnlyPermissionCheck()){
+            if (LocationFetchHelperSingleton.getInstance().getIsOnlyPermissionCheck()) {
                 builder.addLocationRequest(LocationFetchHelperSingleton.getInstance().getLocationRequest());
-            }else {
+            } else {
                 builder.addLocationRequest(mLocationRequest);
             }
             Task<LocationSettingsResponse> task =
@@ -546,10 +563,10 @@ public class LocationFetchManagerImplementer implements LocationFetchManager {
                         LocationSettingsResponse response = task.getResult(ApiException.class);
                         // requests here.
                         // All location settings are satisfied. The client can initialize location
-                        if (LocationFetchHelperSingleton.getInstance().getIsOnlyPermissionCheck()){
+                        if (LocationFetchHelperSingleton.getInstance().getIsOnlyPermissionCheck()) {
                             LocationFetchHelperSingleton.getInstance().getLocationPermissionListener().onPermissionGranted();
                             finish();
-                        }else {
+                        } else {
                             new Handler().postDelayed(new Runnable() {
                                 @Override
                                 public void run() {
@@ -593,7 +610,7 @@ public class LocationFetchManagerImplementer implements LocationFetchManager {
                                             public void onClick(DialogInterface dialog, int which) {
                                                 if (LocationFetchHelperSingleton.getInstance().getIsOnlyPermissionCheck()) {
                                                     LocationFetchHelperSingleton.getInstance().getLocationPermissionListener().onPermissionDenied("Location denied");
-                                                }else {
+                                                } else {
                                                     afterLocationFetchFailed("Location denied");
                                                 }
                                             }
