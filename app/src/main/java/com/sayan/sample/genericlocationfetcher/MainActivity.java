@@ -1,5 +1,6 @@
 package com.sayan.sample.genericlocationfetcher;
 
+import android.location.Location;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.Toast;
@@ -7,9 +8,10 @@ import android.widget.Toast;
 import com.checkmyuniverse.locationfetchhelper.deprecated.FetchLocationFalureListener;
 import com.checkmyuniverse.locationfetchhelper.deprecated.FetchLocationSuccessListener;
 import com.checkmyuniverse.locationfetchhelper.deprecated.LocationFetchHelper;
-import com.checkmyuniverse.locationfetchhelper.deprecated.LocationPermissionListener;
 import com.checkmyuniverse.locationfetchhelper.newsdk.LocationFetchManager;
 import com.checkmyuniverse.locationfetchhelper.newsdk.LocationFetchManagerImplementer;
+import com.checkmyuniverse.locationfetchhelper.newsdk.listeners.FetchLocationFailureListener;
+import com.checkmyuniverse.locationfetchhelper.newsdk.listeners.LocationPermissionListener;
 import com.google.android.gms.location.LocationRequest;
 
 public class MainActivity extends AppCompatActivity {
@@ -28,22 +30,22 @@ public class MainActivity extends AppCompatActivity {
 //                stopLocationUpdates();
 //            }
 //        }, 100000);
-        getLocationPermission();
+        fetchLocation();
     }
 
     private void getLocationPermission() {
-        LocationFetchManager locationFetchManager = LocationFetchManager.getInstance(this);
-        locationFetchManager.fetchLocation(this, new FetchLocationSuccessListener() {
-            @Override
-            public void onLocationFetched(double latitude, double longitude) {
-                Toast.makeText(MainActivity.this, "Latitude: " + latitude +"\nLongitude: " + longitude, Toast.LENGTH_SHORT).show();
-            }
-        }, new FetchLocationFalureListener() {
-            @Override
-            public void onLocationFetchFailed(String errorMessage) {
-                Toast.makeText(MainActivity.this, "Failed: " + errorMessage, Toast.LENGTH_SHORT).show();
-            }
-        });
+        LocationFetchManager.getInstance(this)
+                .checkHighAccuracyPermission(new LocationPermissionListener() {
+                    @Override
+                    public void onPermissionGranted() {
+                        Toast.makeText(MainActivity.this, "Granted.", Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void onPermissionDenied(String errorMessage) {
+                        Toast.makeText(MainActivity.this, "Denied:=> " + errorMessage, Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 
     protected LocationRequest createLocationRequest() {
@@ -55,17 +57,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void fetchLocation(){
-        new LocationFetchHelper(this, new FetchLocationSuccessListener() {
-            @Override
-            public void onLocationFetched(double latitude, double longitude) {
-                Toast.makeText(MainActivity.this, "Latitude: " + latitude + "\nLongitude: " + longitude, Toast.LENGTH_LONG).show();
-            }
-        }, new FetchLocationFalureListener() {
-            @Override
-            public void onLocationFetchFailed(String errorMessage) {
-                Toast.makeText(MainActivity.this, errorMessage, Toast.LENGTH_SHORT).show();
-            }
-        }, false);
+        LocationFetchManager.getInstance(this)
+                .fetchLocation(location -> Toast.makeText(MainActivity.this, "Location:=> " + location.getLatitude() + ", " + location.getLongitude(), Toast.LENGTH_SHORT).show(),
+                        errorMessage -> Toast.makeText(MainActivity.this, "Failed:=> " + errorMessage, Toast.LENGTH_SHORT).show());
     }
 
     private void startLocationServiceDefault(){

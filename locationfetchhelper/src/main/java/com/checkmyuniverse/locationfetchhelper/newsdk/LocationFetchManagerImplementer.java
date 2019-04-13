@@ -22,14 +22,17 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.checkmyuniverse.locationfetchhelper.deprecated.FetchLocationFalureListener;
-import com.checkmyuniverse.locationfetchhelper.deprecated.FetchLocationSuccessListener;
-import com.checkmyuniverse.locationfetchhelper.deprecated.LocationPermissionListener;
+import com.checkmyuniverse.locationfetchhelper.newsdk.listeners.FetchLocationFailureListener;
+import com.checkmyuniverse.locationfetchhelper.newsdk.listeners.FetchLocationSuccessListener;
+import com.checkmyuniverse.locationfetchhelper.newsdk.listeners.LocationPermissionListener;
+import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResolvableApiException;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationAvailability;
 import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
@@ -114,18 +117,17 @@ public final class LocationFetchManagerImplementer implements LocationFetchManag
     //endregion
 
     @Override
-    public void fetchLocation(Context context, FetchLocationSuccessListener mListener, FetchLocationFalureListener mFailureListener) {
-        this.context = context;
+    public void fetchLocation(final FetchLocationSuccessListener mListener, final FetchLocationFailureListener mFailureListener) {
         LocationFetchHelperSingleton.getInstance().setFetchLocationListener(mListener);
         LocationFetchHelperSingleton.getInstance().setFetchLocationFailureListener(mFailureListener);
-        LocationFetchHelperSingleton.getInstance().setLocationIntervalTime(20 * 1000);
-        LocationFetchHelperSingleton.getInstance().setLocationFastestIntervalTime(10 * 1000);
-        LocationFetchHelperSingleton.getInstance().setLocationPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
+        LocationFetchHelperSingleton.getInstance().setLocationIntervalTime(2000);
+        LocationFetchHelperSingleton.getInstance().setLocationFastestIntervalTime(1000);
+        LocationFetchHelperSingleton.getInstance().setLocationPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
         startFetchingLocation();
     }
 
     private void startFetchingLocation() {
-        startLocationPermissionCheckActivity(true, new LocationPermissionListener() {
+        startLocationPermissionCheckActivity(new LocationPermissionListener() {
             @Override
             public void onPermissionGranted() {
                 startLocationFetchActivity();
@@ -167,7 +169,7 @@ public final class LocationFetchManagerImplementer implements LocationFetchManag
      *                                    rebooting it may continue
      *                                    </p>
      */
-    LocationFetchManagerImplementer(Context context, FetchLocationSuccessListener mListener, FetchLocationFalureListener mFailureListener, long locationIntervalTime, long locationFastestIntervalTime, int locationPriority, boolean shouldUseService) {
+    LocationFetchManagerImplementer(Context context, FetchLocationSuccessListener mListener, FetchLocationFailureListener mFailureListener, long locationIntervalTime, long locationFastestIntervalTime, int locationPriority, boolean shouldUseService) {
         this.context = context;
         LocationFetchHelperSingleton.getInstance().setFetchLocationListener(mListener);
         LocationFetchHelperSingleton.getInstance().setFetchLocationFailureListener(mFailureListener);
@@ -190,28 +192,18 @@ public final class LocationFetchManagerImplementer implements LocationFetchManag
         }
     }
 
-    private void startLocationPermissionCheckActivity(boolean isHighAccuracy, LocationPermissionListener locationPermissionListener) {
+    private void startLocationPermissionCheckActivity(LocationPermissionListener locationPermissionListener) {
         try {
             LocationFetchHelperSingleton.getInstance().setLocationPermissionListener(locationPermissionListener);
             LocationFetchHelperSingleton.getInstance().setLocationRequest(null);
             Activity activity = (Activity) context;
             Intent intent = new Intent(activity, LocationPermissionCheckActivity.class);
-            intent.putExtra("isHighAccuracy", isHighAccuracy);
+            intent.putExtra("isHighAccuracy", true);
             activity.startActivity(intent);
         } catch (Exception e) {
             //impossible block
             throw new LocationFetchException("Cannot start LocationPermissionCheckActivity");
         }
-    }
-
-    /**
-     * Call this method to stop the continuous location update
-     *
-     * @param context Activity context
-     * @return true if successfully canceled the service, false if failed
-     */
-    public static boolean stopLocationService(Context context) {
-        return false;
     }
 
     private void startLocationFetchActivity() {
@@ -437,14 +429,12 @@ public final class LocationFetchManagerImplementer implements LocationFetchManag
 
     }
 
-    public static class LocationFetchActivity extends AppCompatActivity {
+    public static class LocationFetchActivityOld extends AppCompatActivity {
 
-        private static final int REQUEST_FOR_LOCATION = 10123;
-        private static final int REQUEST_CHECK_SETTINGS = 20123;
         private FusedLocationProviderClient mFusedLocationClient;
         private LocationRequest mLocationRequest;
         private FetchLocationSuccessListener mListener;
-        private FetchLocationFalureListener mFailureListener;
+        private FetchLocationFailureListener mFailureListener;
         private boolean mRequestingLocationUpdates = false;
         private LocationCallback mLocationCallback = new LocationCallback() {
             @Override
@@ -504,113 +494,6 @@ public final class LocationFetchManagerImplementer implements LocationFetchManag
             mLocationRequest.setPriority(LocationFetchHelperSingleton.getInstance().getLocationPriority());
         }
 
-        //then this method
-        public void requestPermissionForLocation() {
-            if (ContextCompat.checkSelfPermission(getApplicationContext(),
-                    Manifest.permission.ACCESS_FINE_LOCATION)
-                    != PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(getApplicationContext(),
-                    Manifest.permission.ACCESS_COARSE_LOCATION)
-                    != PackageManager.PERMISSION_GRANTED) {
-                // not granted, explanation?
-                if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                        Manifest.permission.ACCESS_FINE_LOCATION)) {
-                    ActivityCompat.requestPermissions(this,
-                            new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
-                            REQUEST_FOR_LOCATION);
-                } else {
-                    ActivityCompat.requestPermissions(this,
-                            new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
-                            REQUEST_FOR_LOCATION);
-                }
-            } else {
-                //permission already granted
-                handleLocationRequestPermission();
-            }
-        }
-
-        //permission granted
-        private void handleLocationRequestPermission() {
-            LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder();
-            if (LocationFetchHelperSingleton.getInstance().getIsOnlyPermissionCheck()) {
-                builder.addLocationRequest(LocationFetchHelperSingleton.getInstance().getLocationRequest());
-            } else {
-                builder.addLocationRequest(mLocationRequest);
-            }
-            Task<LocationSettingsResponse> task =
-                    LocationServices.getSettingsClient(this).checkLocationSettings(builder.build());
-
-            task.addOnCompleteListener(new OnCompleteListener<LocationSettingsResponse>() {
-                @Override
-                public void onComplete(Task<LocationSettingsResponse> task) {
-                    try {
-                        LocationSettingsResponse response = task.getResult(ApiException.class);
-                        // requests here.
-                        // All location settings are satisfied. The client can initialize location
-                        if (LocationFetchHelperSingleton.getInstance().getIsOnlyPermissionCheck()) {
-                            LocationFetchHelperSingleton.getInstance().getLocationPermissionListener().onPermissionGranted();
-                            finish();
-                        } else {
-                            new Handler().postDelayed(new Runnable() {
-                                @Override
-                                public void run() {
-                                    getCurrentLocation();
-                                }
-                            }, 3000);
-                        }
-                    } catch (ApiException exception) {
-                        int code = exception.getStatusCode();
-                        switch (code) {
-                            case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
-                                // Location settings are not satisfied. But could be fixed by showing the
-                                // user a progressDialog.
-                                try {
-                                    // Cast to a resolvable exception.
-                                    ResolvableApiException resolvable = (ResolvableApiException) exception;
-                                    // Show the progressDialog by calling startResolutionForResult(),
-                                    // and check the result in onActivityResult().
-                                    resolvable.startResolutionForResult(
-                                            LocationFetchActivity.this,
-                                            REQUEST_CHECK_SETTINGS);
-                                } catch (IntentSender.SendIntentException e) {
-                                    // Ignore the error.
-                                } catch (ClassCastException e) {
-                                    // Ignore, should be an impossible error.
-                                }
-                                break;
-                            case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
-                                // Location settings are not satisfied. However, we have no way to fix the
-                                // settings so we won't show the progressDialog.
-                                new android.app.AlertDialog.Builder(LocationFetchActivity.this)
-                                        .setMessage("GPS is not enabled. Do you want to go to settings menu?")
-                                        .setPositiveButton("Settings", new DialogInterface.OnClickListener() {
-                                            public void onClick(DialogInterface dialog, int which) {
-                                                Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                                                startActivity(intent);
-                                            }
-                                        })
-                                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                                            @Override
-                                            public void onClick(DialogInterface dialog, int which) {
-                                                if (LocationFetchHelperSingleton.getInstance().getIsOnlyPermissionCheck()) {
-                                                    LocationFetchHelperSingleton.getInstance().getLocationPermissionListener().onPermissionDenied("Location denied");
-                                                } else {
-                                                    afterLocationFetchFailed("Location denied");
-                                                }
-                                            }
-                                        })
-                                        .setCancelable(false)
-                                        .show();
-                                break;
-                        }
-                    }
-                }
-            });
-        }
-
-        private void startLocationFetchService() {
-
-        }
-
         @SuppressLint("MissingPermission")
         private void startLocationUpdates() {
             mFusedLocationClient.requestLocationUpdates(mLocationRequest,
@@ -646,7 +529,7 @@ public final class LocationFetchManagerImplementer implements LocationFetchManag
                     //location returned is null
                     if (mOnSuccessCallCounter <= 5) {
                         //try another time
-                        mFusedLocationClient.getLastLocation().addOnSuccessListener(LocationFetchActivity.this, this);
+                        mFusedLocationClient.getLastLocation().addOnSuccessListener(LocationFetchActivityOld.this, this);
                     } else {
                         startLocationUpdates();
                     }
@@ -654,82 +537,145 @@ public final class LocationFetchManagerImplementer implements LocationFetchManag
             }
         }
 
-        //not called for now, it is not working WIP
-        @Override
-        public void onRequestPermissionsResult(int requestCode,
-                                               @NonNull String permissions[], @NonNull int[] grantResults) {
-            Log.d("sayan", " onrequestlocationpermission");
-            switch (requestCode) {
-                case REQUEST_CHECK_SETTINGS: {
-                    // If request is cancelled, the result arrays are empty.
-                    if (grantResults.length > 0
-                            && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                        // permission was granted
-                        Log.d("sayan", " yes selected");
-                        if (LocationFetchHelperSingleton.getInstance().getIsOnlyPermissionCheck()) {
-                            LocationFetchHelperSingleton.getInstance().getLocationPermissionListener().onPermissionGranted();
-                            finish();
-                        } else {
-                            new Handler().postDelayed(new Runnable() {
-                                @Override
-                                public void run() {
-                                    getCurrentLocation();
-                                }
-                            }, 3000);
-                        }
-                    } else {
-                        //permission denied
-                        afterLocationFetchFailed("Location permission denied");
+        private void afterLocationFetchFailed(final String errorMessage) {
+            if (mFailureListener != null) {
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        mFailureListener.onLocationFetchFailed(errorMessage);
                     }
-                    break;
-                }
-                case REQUEST_FOR_LOCATION: {
-                    if (grantResults.length > 0
-                            && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                        // permission was granted
-//                    Toast.makeText(getApplicationContext(), "SMS Permission granted", Toast.LENGTH_LONG).show();
-                        handleLocationRequestPermission();
-                    } else {
-                        afterLocationFetchFailed("Please turn on location permission in Settings");
+                }, 200);
+            }
+            finish();
+        }
+
+        private void afterLocationFetchSucceed(final Location location) {
+            if (mListener != null) {
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        mListener.onLocationFetched(location);
                     }
-                    break;
-                }
+                }, 200);
+            }
+            finish();
+        }
+
+    }
+
+    public static class LocationFetchActivity extends Activity implements GoogleApiClient.ConnectionCallbacks, LocationListener, GoogleApiClient.OnConnectionFailedListener {
+
+        private int locationFetchCounter = 0;
+        private LocationRequest mLocationRequest;
+        private FetchLocationSuccessListener mListener;
+        private FetchLocationFailureListener mFailureListener;
+        private boolean mRequestingLocationUpdates = false;
+        private GoogleApiClient mGoogleApiClient;
+
+        //override method if you are using LocationListener. Else, simple method for next work
+        @SuppressLint("MissingPermission")
+        public void onLocationChanged(Location location) {
+            if (locationFetchCounter < 2){
+                locationFetchCounter++;
+            }else {
+                afterLocationFetchSucceed(location);
+                new Handler().postDelayed(this::stopLocationUpdates, 150);
             }
         }
 
-        //after permission and location ON, this method will be called
         @Override
-        protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-//        final LocationSettingsStates states = LocationSettingsStates.fromIntent(data);
-            switch (requestCode) {
-                case REQUEST_CHECK_SETTINGS: {
-                    switch (resultCode) {
-                        case Activity.RESULT_OK:
-                            // All required changes were successfully made
-//                            Toast.makeText(this, "Location ON", Toast.LENGTH_SHORT).show();
-                            if (LocationFetchHelperSingleton.getInstance().getIsOnlyPermissionCheck()) {
-                                LocationFetchHelperSingleton.getInstance().getLocationPermissionListener().onPermissionGranted();
-                                finish();
-                            } else {
-                                new Handler().postDelayed(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        getCurrentLocation();
-                                    }
-                                }, 3000);
-                            }
-                            break;
-                        case Activity.RESULT_CANCELED:
-                            // The user was asked to change settings, but chose not to
-//                            Toast.makeText(this, "Location OFF", Toast.LENGTH_SHORT).show();
-                            afterLocationFetchFailed("Please turn on your location in Settings");
-                            break;
-                        default:
-                            break;
-                    }
-                    break;
-                }
+        protected void onCreate(@Nullable Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            setUpGoogleApiClient();
+        }
+
+        @Override
+        protected void onResume() {
+            super.onResume();
+            if (mRequestingLocationUpdates) {
+                startLocationUpdates();
             }
+        }
+
+        @Override
+        protected void onPause() {
+            super.onPause();
+            try {
+                if (mGoogleApiClient.isConnected()) {
+                    if (mRequestingLocationUpdates) {
+                        stopLocationUpdates();
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        private void initiateLocationRequest() {
+            mListener = LocationFetchHelperSingleton.getInstance().getFetchLocationListener();
+            mFailureListener = LocationFetchHelperSingleton.getInstance().getFetchLocationFailureListener();
+            createLocationRequest();
+            getCurrentLocation();
+        }
+
+        private void setUpGoogleApiClient() {
+            mGoogleApiClient = new GoogleApiClient.Builder(this)
+                    .addApi(LocationServices.API)
+                    .addConnectionCallbacks(this)
+                    .addOnConnectionFailedListener(this)
+                    .build();
+            mGoogleApiClient.connect();
+        }
+
+        //first call this method
+        protected void createLocationRequest() {
+            try {
+                mLocationRequest = new LocationRequest();
+                mLocationRequest.setInterval(LocationFetchHelperSingleton.getInstance().getLocationIntervalTime());
+                mLocationRequest.setFastestInterval(LocationFetchHelperSingleton.getInstance().getLocationFastestIntervalTime());
+                mLocationRequest.setPriority(LocationFetchHelperSingleton.getInstance().getLocationPriority());
+            } catch (Exception e) {
+                e.printStackTrace();
+                throw new LocationFetchException("LocationRequest creation error");
+            }
+        }
+
+        @SuppressLint("MissingPermission")
+        private void startLocationUpdates() {
+            /*uncomment this line of code if you want to use onLocationChange of LocationListener class.
+             * also uncomment the implements interface of LocationListener in this activity
+             */
+            try {
+                LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
+            } catch (SecurityException e) {
+                e.printStackTrace();
+            }
+        }
+
+        @SuppressLint("MissingPermission")
+        private void stopLocationUpdates() {
+            LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
+        }
+
+        //fetch location
+        @SuppressLint("MissingPermission")
+        private void getCurrentLocation() {
+            startLocationUpdates();
+        }
+
+        @Override
+        public void onConnected(@Nullable Bundle bundle) {
+            initiateLocationRequest();
+        }
+
+        @Override
+        public void onConnectionSuspended(int i) {
+            afterLocationFetchFailed("Could not connect to google location service");
+        }
+
+        @Override
+        public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+            afterLocationFetchFailed("Could not connect to google location service");
         }
 
         private void afterLocationFetchFailed(final String errorMessage) {
@@ -751,16 +697,13 @@ public final class LocationFetchManagerImplementer implements LocationFetchManag
 
         private void afterLocationFetchSucceed(final Location location) {
             if (mListener != null) {
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        mListener.onLocationFetched(location.getLatitude(), location.getLongitude());
-                    }
-                }, 200);
+                new Handler().postDelayed(() -> mListener.onLocationFetched(location), 200);
             }
+            stopLocationUpdates();
             finish();
         }
 
     }
+
 
 }

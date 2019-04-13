@@ -2,9 +2,9 @@ package com.checkmyuniverse.locationfetchhelper.newsdk;
 
 import android.content.Context;
 
-import com.checkmyuniverse.locationfetchhelper.deprecated.FetchLocationFalureListener;
-import com.checkmyuniverse.locationfetchhelper.deprecated.FetchLocationSuccessListener;
-import com.checkmyuniverse.locationfetchhelper.deprecated.LocationPermissionListener;
+import com.checkmyuniverse.locationfetchhelper.newsdk.listeners.FetchLocationFailureListener;
+import com.checkmyuniverse.locationfetchhelper.newsdk.listeners.FetchLocationSuccessListener;
+import com.checkmyuniverse.locationfetchhelper.newsdk.listeners.LocationPermissionListener;
 import com.google.android.gms.location.LocationRequest;
 
 public class LocationFetchHelperSingleton {
@@ -15,7 +15,7 @@ public class LocationFetchHelperSingleton {
     private long locationFastestIntervalTime;
     private boolean shouldUseService;
     private FetchLocationSuccessListener fetchLocationListener;
-    private FetchLocationFalureListener fetchLocationFailureListener;
+    private FetchLocationFailureListener fetchLocationFailureListener;
     private Context context;
     private LocationPermissionListener locationPermissionListener;
     private boolean isOnlyPermissionCheck;
@@ -81,11 +81,11 @@ public class LocationFetchHelperSingleton {
         this.shouldUseService = shouldUseService;
     }
 
-    FetchLocationFalureListener getFetchLocationFailureListener() {
+    FetchLocationFailureListener getFetchLocationFailureListener() {
         return fetchLocationFailureListener;
     }
 
-    void setFetchLocationFailureListener(FetchLocationFalureListener fetchLocationFailureListener) {
+    void setFetchLocationFailureListener(FetchLocationFailureListener fetchLocationFailureListener) {
         this.fetchLocationFailureListener = fetchLocationFailureListener;
     }
 

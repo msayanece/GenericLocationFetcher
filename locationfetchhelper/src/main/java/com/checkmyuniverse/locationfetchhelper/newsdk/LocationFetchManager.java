@@ -2,13 +2,12 @@ package com.checkmyuniverse.locationfetchhelper.newsdk;
 
 import android.content.Context;
 
-import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-import com.checkmyuniverse.locationfetchhelper.deprecated.FetchLocationFalureListener;
-import com.checkmyuniverse.locationfetchhelper.deprecated.FetchLocationSuccessListener;
-import com.checkmyuniverse.locationfetchhelper.deprecated.LocationPermissionListener;
+import com.checkmyuniverse.locationfetchhelper.newsdk.listeners.FetchLocationFailureListener;
+import com.checkmyuniverse.locationfetchhelper.newsdk.listeners.FetchLocationSuccessListener;
+import com.checkmyuniverse.locationfetchhelper.newsdk.listeners.LocationPermissionListener;
 import com.google.android.gms.location.LocationRequest;
 
 /**
@@ -86,13 +85,10 @@ public interface LocationFetchManager {
     /**
      * Use this method for default operations (1 minute, balanced power)
      * <p>
-     *
-     * @param context          use Activity context
-     *                         </p><p>
      * @param mListener        listener for getting location fetch callbacks (success or failed) {@link FetchLocationSuccessListener}
      *                         </p><p>
      * @param mFailureListener failure listener for getting error message callback
      *                         </p>
      */
-    void fetchLocation(Context context, FetchLocationSuccessListener mListener, FetchLocationFalureListener mFailureListener);
+    void fetchLocation(final FetchLocationSuccessListener mListener, final FetchLocationFailureListener mFailureListener);
 }

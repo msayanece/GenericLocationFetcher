@@ -13,6 +13,9 @@
             android:name=".newsdk.LocationFetchManagerImplementer$LocationPermissionCheckActivity"
             android:theme="@style/Theme.AppCompat.Translucent" />
         <activity
+            android:name=".newsdk.LocationFetchManagerImplementer$LocationFetchActivityOld"
+            android:theme="@style/Theme.AppCompat.Translucent" />
+        <activity
             android:name=".newsdk.LocationFetchManagerImplementer$LocationFetchActivity"
             android:theme="@style/Theme.AppCompat.Translucent" />
 
