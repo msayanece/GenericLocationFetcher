@@ -49,6 +49,7 @@ public final class LocationFetchManagerImplementer implements LocationFetchManag
     private static LocationFetchManager instance;
     private Context context;
 
+    //region Initialization region
     {
         instance = this;
     }
@@ -60,35 +61,82 @@ public final class LocationFetchManagerImplementer implements LocationFetchManag
     void addNewContext(Context context) {
         this.context = context;
     }
+    //endregion
 
     LocationFetchManagerImplementer(Context context) {
         this.context = context;
     }
 
-    /**
-     * Use this constructor for default operations (1 minute, balanced power)
-     * <p>
-     *
-     * @param context          use Activity context
-     *                         </p><p>
-     * @param mListener        listener for getting location fetch callbacks (success or failed) {@link FetchLocationSuccessListener}
-     *                         </p><p>
-     * @param mFailureListener failure listener for getting error message callback
-     *                         </p><p>
-     * @param shouldUseService if true, this helper class will be using a service and alarm manager
-     *                         for fetching continuous and repeated location fetching; even after
-     *                         rebooting it may continue
-     *                         </p>
-     */
-    LocationFetchManagerImplementer(Context context, FetchLocationSuccessListener mListener, FetchLocationFalureListener mFailureListener, boolean shouldUseService) {
+    //region check permission methods region
+    @Override
+    public void checkPermission(@Nullable LocationRequest locationRequest, @NonNull LocationPermissionListener locationPermissionListener) {
+        LocationFetchHelperSingleton.getInstance().setLocationPermissionListener(locationPermissionListener);
+        LocationFetchHelperSingleton.getInstance().setIsOnlyPermissionCheck(true);
+        LocationFetchHelperSingleton.getInstance().setLocationRequest(locationRequest);
+        startLocationPermissionCheckActivity(true);
+    }
+
+    @Override
+    public void checkPermission(boolean isHighAccuracy, @NonNull LocationPermissionListener locationPermissionListener) {
+        LocationFetchHelperSingleton.getInstance().setLocationPermissionListener(locationPermissionListener);
+        LocationFetchHelperSingleton.getInstance().setIsOnlyPermissionCheck(true);
+        LocationFetchHelperSingleton.getInstance().setLocationRequest(null);
+        startLocationPermissionCheckActivity(isHighAccuracy);
+    }
+
+    @Override
+    public void checkPermission(int locationPriority, @NonNull LocationPermissionListener locationPermissionListener) {
+        boolean isHighAccuracy = false;
+        LocationFetchHelperSingleton.getInstance().setLocationPermissionListener(locationPermissionListener);
+        LocationFetchHelperSingleton.getInstance().setIsOnlyPermissionCheck(true);
+        LocationFetchHelperSingleton.getInstance().setLocationRequest(null);
+        if (locationPriority == LocationRequest.PRIORITY_HIGH_ACCURACY) {
+            isHighAccuracy = true;
+        }
+        startLocationPermissionCheckActivity(isHighAccuracy);
+    }
+
+    @Override
+    public void checkHighAccuracyPermission(LocationPermissionListener locationPermissionListener) {
+        LocationFetchHelperSingleton.getInstance().setLocationPermissionListener(locationPermissionListener);
+        LocationFetchHelperSingleton.getInstance().setIsOnlyPermissionCheck(true);
+        LocationFetchHelperSingleton.getInstance().setLocationRequest(null);
+        startLocationPermissionCheckActivity(true);
+    }
+
+    @Override
+    public void checkBalancedPowerPermission(@NonNull LocationPermissionListener locationPermissionListener) {
+        LocationFetchHelperSingleton.getInstance().setLocationPermissionListener(locationPermissionListener);
+        LocationFetchHelperSingleton.getInstance().setIsOnlyPermissionCheck(true);
+        LocationFetchHelperSingleton.getInstance().setLocationRequest(null);
+        startLocationPermissionCheckActivity(false);
+    }
+    //endregion
+
+    @Override
+    public void fetchLocation(Context context, FetchLocationSuccessListener mListener, FetchLocationFalureListener mFailureListener) {
         this.context = context;
         LocationFetchHelperSingleton.getInstance().setFetchLocationListener(mListener);
         LocationFetchHelperSingleton.getInstance().setFetchLocationFailureListener(mFailureListener);
         LocationFetchHelperSingleton.getInstance().setLocationIntervalTime(20 * 1000);
         LocationFetchHelperSingleton.getInstance().setLocationFastestIntervalTime(10 * 1000);
-        LocationFetchHelperSingleton.getInstance().setShouldUseService(shouldUseService);
         LocationFetchHelperSingleton.getInstance().setLocationPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
-        startLocationFetchActivity();
+        startFetchingLocation();
+    }
+
+    private void startFetchingLocation() {
+        startLocationPermissionCheckActivity(true, new LocationPermissionListener() {
+            @Override
+            public void onPermissionGranted() {
+                startLocationFetchActivity();
+            }
+
+            @Override
+            public void onPermissionDenied(String errorMessage) {
+                if (LocationFetchHelperSingleton.getInstance().getFetchLocationFailureListener() != null)
+                    LocationFetchHelperSingleton.getInstance().getFetchLocationFailureListener().onLocationFetchFailed(errorMessage);
+            }
+        });
     }
 
     /**
@@ -130,55 +178,22 @@ public final class LocationFetchManagerImplementer implements LocationFetchManag
         startLocationFetchActivity();
     }
 
-
-    @Override
-    public void checkPermission(@Nullable LocationRequest locationRequest, @NonNull LocationPermissionListener locationPermissionListener) {
-        LocationFetchHelperSingleton.getInstance().setLocationPermissionListener(locationPermissionListener);
-        LocationFetchHelperSingleton.getInstance().setIsOnlyPermissionCheck(true);
-        LocationFetchHelperSingleton.getInstance().setLocationRequest(locationRequest);
-        startLocationPermissionCheckActivity(true);
-    }
-
-    @Override
-    public void checkPermission(boolean isHighAccuracy, @NonNull LocationPermissionListener locationPermissionListener) {
-        LocationFetchHelperSingleton.getInstance().setLocationPermissionListener(locationPermissionListener);
-        LocationFetchHelperSingleton.getInstance().setIsOnlyPermissionCheck(true);
-        LocationFetchHelperSingleton.getInstance().setLocationRequest(null);
-        startLocationPermissionCheckActivity(isHighAccuracy);
-    }
-
-
-    @Override
-    public void checkPermission(int locationPriority, @NonNull LocationPermissionListener locationPermissionListener) {
-        boolean isHighAccuracy = false;
-        LocationFetchHelperSingleton.getInstance().setLocationPermissionListener(locationPermissionListener);
-        LocationFetchHelperSingleton.getInstance().setIsOnlyPermissionCheck(true);
-        LocationFetchHelperSingleton.getInstance().setLocationRequest(null);
-        if (locationPriority == LocationRequest.PRIORITY_HIGH_ACCURACY) {
-            isHighAccuracy = true;
-        }
-        startLocationPermissionCheckActivity(isHighAccuracy);
-    }
-
-
-    @Override
-    public void checkHighAccuracyPermission(LocationPermissionListener locationPermissionListener) {
-        LocationFetchHelperSingleton.getInstance().setLocationPermissionListener(locationPermissionListener);
-        LocationFetchHelperSingleton.getInstance().setIsOnlyPermissionCheck(true);
-        LocationFetchHelperSingleton.getInstance().setLocationRequest(null);
-        startLocationPermissionCheckActivity(true);
-    }
-
-    @Override
-    public void checkBalancedPowerPermission(@NonNull LocationPermissionListener locationPermissionListener) {
-        LocationFetchHelperSingleton.getInstance().setLocationPermissionListener(locationPermissionListener);
-        LocationFetchHelperSingleton.getInstance().setIsOnlyPermissionCheck(true);
-        LocationFetchHelperSingleton.getInstance().setLocationRequest(null);
-        startLocationPermissionCheckActivity(false);
-    }
-
     private void startLocationPermissionCheckActivity(boolean isHighAccuracy) {
         try {
+            Activity activity = (Activity) context;
+            Intent intent = new Intent(activity, LocationPermissionCheckActivity.class);
+            intent.putExtra("isHighAccuracy", isHighAccuracy);
+            activity.startActivity(intent);
+        } catch (Exception e) {
+            //impossible block
+            throw new LocationFetchException("Cannot start LocationPermissionCheckActivity");
+        }
+    }
+
+    private void startLocationPermissionCheckActivity(boolean isHighAccuracy, LocationPermissionListener locationPermissionListener) {
+        try {
+            LocationFetchHelperSingleton.getInstance().setLocationPermissionListener(locationPermissionListener);
+            LocationFetchHelperSingleton.getInstance().setLocationRequest(null);
             Activity activity = (Activity) context;
             Intent intent = new Intent(activity, LocationPermissionCheckActivity.class);
             intent.putExtra("isHighAccuracy", isHighAccuracy);
@@ -470,15 +485,11 @@ public final class LocationFetchManagerImplementer implements LocationFetchManag
         }
 
         private void initiateLocationRequest() {
-            if (LocationFetchHelperSingleton.getInstance().getIsOnlyPermissionCheck()) {
-                requestPermissionForLocation();
-            } else {
-                mListener = LocationFetchHelperSingleton.getInstance().getFetchLocationListener();
-                mFailureListener = LocationFetchHelperSingleton.getInstance().getFetchLocationFailureListener();
-                initializeFusedLocationProviderClient();
-                createLocationRequest();
-                requestPermissionForLocation();
-            }
+            mListener = LocationFetchHelperSingleton.getInstance().getFetchLocationListener();
+            mFailureListener = LocationFetchHelperSingleton.getInstance().getFetchLocationFailureListener();
+            initializeFusedLocationProviderClient();
+            createLocationRequest();
+            getCurrentLocation();
         }
 
         private void initializeFusedLocationProviderClient() {
@@ -616,11 +627,7 @@ public final class LocationFetchManagerImplementer implements LocationFetchManag
         //fetch location
         @SuppressLint("MissingPermission")
         private void getCurrentLocation() {
-            if (LocationFetchHelperSingleton.getInstance().isShouldUseService()) {
-                startLocationFetchService();
-                finish();
-            } else
-                mFusedLocationClient.getLastLocation().addOnSuccessListener(this, new MyOnSuccessListener());
+            mFusedLocationClient.getLastLocation().addOnSuccessListener(this, new MyOnSuccessListener());
         }
 
         //location listener

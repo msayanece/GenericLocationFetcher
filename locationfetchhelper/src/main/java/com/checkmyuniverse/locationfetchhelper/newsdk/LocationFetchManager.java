@@ -6,6 +6,8 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import com.checkmyuniverse.locationfetchhelper.deprecated.FetchLocationFalureListener;
+import com.checkmyuniverse.locationfetchhelper.deprecated.FetchLocationSuccessListener;
 import com.checkmyuniverse.locationfetchhelper.deprecated.LocationPermissionListener;
 import com.google.android.gms.location.LocationRequest;
 
@@ -32,7 +34,7 @@ public interface LocationFetchManager {
     }
 
     /**
-     * Use this method for checking location permission
+     * Use this method for checking location permission by LocationRequest
      * <p>
      *
      * @param locationRequest            the {@link LocationRequest} custom Object with the location priority for fetching location. You may pass a null argument for default implementation, this will forcefully use high accuracy permission
@@ -43,7 +45,7 @@ public interface LocationFetchManager {
     void checkPermission(@Nullable LocationRequest locationRequest, @NonNull LocationPermissionListener locationPermissionListener);
 
     /**
-     * Use this method for checking location permission
+     * Use this method for checking location permission by accuracy
      * <p>
      * @param isHighAccuracy             if true, will request permission for high accuracy, else will request for balanced power
      *                                   </p>
@@ -54,7 +56,7 @@ public interface LocationFetchManager {
     void checkPermission(boolean isHighAccuracy, @NonNull LocationPermissionListener locationPermissionListener);
 
     /**
-     * Use this method for checking location permission
+     * Use this method for checking location permission by location priority
      * <p>
      * @param locationPriority           will only take {@link LocationRequest} priority, will only work on LocationRequest.PRIORITY_HIGH_ACCURACY and LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY for now
      * </p>
@@ -65,7 +67,7 @@ public interface LocationFetchManager {
     void checkPermission(int locationPriority, @NonNull LocationPermissionListener locationPermissionListener);
 
     /**
-     * Use this method for checking location permission
+     * Use this method for checking location permission of High Accuracy
      * <p>
      *
      * @param locationPermissionListener listener for getting location permission callbacks (success or failed) {@link LocationPermissionListener}
@@ -74,10 +76,23 @@ public interface LocationFetchManager {
     void checkHighAccuracyPermission(LocationPermissionListener locationPermissionListener);
 
     /**
-     * Use this method for checking location permission
+     * Use this method for checking location permission of Balanced power
      * <p>
      * @param locationPermissionListener listener for getting location permission callbacks (success or failed) {@link LocationPermissionListener}
      *                                   </p>
      */
     void checkBalancedPowerPermission(@NonNull LocationPermissionListener locationPermissionListener);
+
+    /**
+     * Use this method for default operations (1 minute, balanced power)
+     * <p>
+     *
+     * @param context          use Activity context
+     *                         </p><p>
+     * @param mListener        listener for getting location fetch callbacks (success or failed) {@link FetchLocationSuccessListener}
+     *                         </p><p>
+     * @param mFailureListener failure listener for getting error message callback
+     *                         </p>
+     */
+    void fetchLocation(Context context, FetchLocationSuccessListener mListener, FetchLocationFalureListener mFailureListener);
 }

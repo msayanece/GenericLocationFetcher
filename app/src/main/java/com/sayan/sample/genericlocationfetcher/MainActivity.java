@@ -33,15 +33,15 @@ public class MainActivity extends AppCompatActivity {
 
     private void getLocationPermission() {
         LocationFetchManager locationFetchManager = LocationFetchManager.getInstance(this);
-        locationFetchManager.checkHighAccuracyPermission(new LocationPermissionListener() {
+        locationFetchManager.fetchLocation(this, new FetchLocationSuccessListener() {
             @Override
-            public void onPermissionGranted() {
-                Toast.makeText(MainActivity.this, "granted", Toast.LENGTH_SHORT).show();
+            public void onLocationFetched(double latitude, double longitude) {
+                Toast.makeText(MainActivity.this, "Latitude: " + latitude +"\nLongitude: " + longitude, Toast.LENGTH_SHORT).show();
             }
-
+        }, new FetchLocationFalureListener() {
             @Override
-            public void onPermissionDenied(String errorMessage) {
-                Toast.makeText(MainActivity.this, errorMessage, Toast.LENGTH_SHORT).show();
+            public void onLocationFetchFailed(String errorMessage) {
+                Toast.makeText(MainActivity.this, "Failed: " + errorMessage, Toast.LENGTH_SHORT).show();
             }
         });
     }
