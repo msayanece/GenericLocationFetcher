@@ -1,11 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.checkmyuniverse.locationfetchhelper" >
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.checkmyuniverse.locationfetchhelper">
 
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <application>
+        <activity android:name=".newsdk.HelpActivity"></activity>
         <activity
             android:name=".deprecated.LocationFetchHelper$LocationFetchActivity"
             android:theme="@style/Theme.AppCompat.Translucent" />
@@ -24,4 +27,5 @@
             android:enabled="true"
             android:exported="true" />
     </application>
+
 </manifest>

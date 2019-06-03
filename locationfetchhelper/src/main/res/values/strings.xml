@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">LocationFetchHelper</string>
+    <string name="pageTitle">Why aren\'t push notifications working on my Android app?</string>
+    <string name="pageIntro">Certain Android devices might have some problems receiving push notifications when the Kayako app is closed. Whether you run into this problem will depend on what device you\'re using.   \n\nTo ensure you keep receiving push notifications, you\'ll need to set your device so that it will auto-start the Kayako app when a new notification arrives.   \n\nWe\'ve collected some instructions and resources below, to help you troubleshoot this problem.</string>
+    <string name="importantNote">IMPORTANT NOTE :</string>
+    <string name="importantNoteDesc">The exact steps for this process will vary depending on your device model. We recommend using the information here as a starting point. Some Googling with your precise model details should find instructions specific to your device.</string>
+    <string name="xiaomi">Xiaomi</string>
+    <string name="xiaomiDesc">Enable autostart for the Kayako app. Open up Security and click through to Permissions and Autostart. Make sure Kayako is enabled.</string>
 </resources>
