@@ -2,8 +2,8 @@ package com.checkmyuniverse.locationfetchhelper.newsdk;
 
 import android.content.Context;
 
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.checkmyuniverse.locationfetchhelper.newsdk.listeners.FetchLocationFailureListener;
 import com.checkmyuniverse.locationfetchhelper.newsdk.listeners.FetchLocationSuccessListener;
@@ -91,4 +91,10 @@ public interface LocationFetchManager {
      *                         </p>
      */
     void fetchLocation(final FetchLocationSuccessListener mListener, final FetchLocationFailureListener mFailureListener);
+
+    void fetchLocationContinuously(/*FetchLocationSuccessListener mListener, FetchLocationFailureListener mFailureListener*/);
+
+    void stopCurrentLocationService();
+
+    void openHelpActivity();
 }

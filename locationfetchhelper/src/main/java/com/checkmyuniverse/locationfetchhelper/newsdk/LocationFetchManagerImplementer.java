@@ -14,11 +14,11 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.provider.Settings;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AppCompatActivity;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.appcompat.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -42,6 +42,13 @@ import com.google.android.gms.location.LocationSettingsStatusCodes;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+
+import java.util.concurrent.TimeUnit;
+
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.WorkManager;
+import androidx.work.Worker;
+import androidx.work.WorkerParameters;
 
 /**
  * @author Sayan Mukher
@@ -116,6 +123,7 @@ public final class LocationFetchManagerImplementer implements LocationFetchManag
     }
     //endregion
 
+    //region Location fetch region
     @Override
     public void fetchLocation(final FetchLocationSuccessListener mListener, final FetchLocationFailureListener mFailureListener) {
         LocationFetchHelperSingleton.getInstance().setFetchLocationListener(mListener);
@@ -125,6 +133,45 @@ public final class LocationFetchManagerImplementer implements LocationFetchManag
         LocationFetchHelperSingleton.getInstance().setLocationPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
         startFetchingLocation();
     }
+
+    @Override
+    public void fetchLocationContinuously(/*final FetchLocationSuccessListener mListener, final FetchLocationFailureListener mFailureListener*/) {
+//        LocationFetchHelperSingleton.getInstance().setFetchLocationListener(mListener);
+//        LocationFetchHelperSingleton.getInstance().setFetchLocationFailureListener(mFailureListener);
+//        LocationFetchHelperSingleton.getInstance().setLocationIntervalTime(2000);
+//        LocationFetchHelperSingleton.getInstance().setLocationFastestIntervalTime(1000);
+//        LocationFetchHelperSingleton.getInstance().setLocationPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+
+        // Create a Constraints object that defines when the task should run
+
+        int locationIntervalTime = 10;
+        enqueueOneTimeWork(locationIntervalTime);
+    }
+
+    @Override
+    public void stopCurrentLocationService() {
+        WorkManager.getInstance().cancelAllWorkByTag("LOC");
+    }
+
+    @Override
+    public void openHelpActivity() {
+        Intent intent = new Intent(context, HelpActivity.class);
+        context.startActivity(intent);
+    }
+
+    /**
+     * Enqueue a one time work request with work manager with initial delay
+     * @param locationIntervalTime the initial delay for this work in seconds
+     */
+    private static void enqueueOneTimeWork(int locationIntervalTime) {
+        OneTimeWorkRequest locationFetchWorker =
+                new OneTimeWorkRequest.Builder(LocationFetchWorker.class)
+                        .setInitialDelay(locationIntervalTime, TimeUnit.SECONDS)
+                        .addTag("LOC")
+                        .build();
+        WorkManager.getInstance().enqueue(locationFetchWorker);
+    }
+    //endregion
 
     private void startFetchingLocation() {
         startLocationPermissionCheckActivity(new LocationPermissionListener() {
@@ -705,5 +752,24 @@ public final class LocationFetchManagerImplementer implements LocationFetchManag
 
     }
 
+    public static class LocationFetchWorker extends Worker {
+
+        public LocationFetchWorker(
+                @NonNull Context context,
+                @NonNull WorkerParameters params) {
+            super(context, params);
+        }
+
+        @Override
+        public Result doWork() {
+            // Do the work here
+            Handler mMainThreadHandler = new Handler(Looper.getMainLooper());
+            mMainThreadHandler.post(() -> Toast.makeText(getApplicationContext(), "doWork", Toast.LENGTH_SHORT).show());
+            enqueueOneTimeWork(30);
+
+            // Indicate whether the task finished successfully with the Result
+            return Result.success();
+        }
+    }
 
 }
