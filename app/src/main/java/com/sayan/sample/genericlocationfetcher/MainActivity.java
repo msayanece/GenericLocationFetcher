@@ -1,18 +1,23 @@
 package com.sayan.sample.genericlocationfetcher;
 
-import android.location.Location;
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
+
+import android.content.ComponentName;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Toast;
 
 import com.checkmyuniverse.locationfetchhelper.deprecated.FetchLocationFalureListener;
 import com.checkmyuniverse.locationfetchhelper.deprecated.FetchLocationSuccessListener;
 import com.checkmyuniverse.locationfetchhelper.deprecated.LocationFetchHelper;
 import com.checkmyuniverse.locationfetchhelper.newsdk.LocationFetchManager;
-import com.checkmyuniverse.locationfetchhelper.newsdk.LocationFetchManagerImplementer;
-import com.checkmyuniverse.locationfetchhelper.newsdk.listeners.FetchLocationFailureListener;
 import com.checkmyuniverse.locationfetchhelper.newsdk.listeners.LocationPermissionListener;
 import com.google.android.gms.location.LocationRequest;
+
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     private static final long LOCATION_FASTEST_INTERVAL = 5 * 1000;
@@ -30,7 +35,9 @@ public class MainActivity extends AppCompatActivity {
 //                stopLocationUpdates();
 //            }
 //        }, 100000);
-        fetchLocation();
+
+//        fetchLocation();
+        getLocationPermission();
     }
 
     private void getLocationPermission() {
@@ -63,12 +70,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void startLocationServiceDefault(){
-        new LocationFetchHelper(this, null, new FetchLocationFalureListener() {
-            @Override
-            public void onLocationFetchFailed(String errorMessage) {
-                Toast.makeText(MainActivity.this, errorMessage, Toast.LENGTH_SHORT).show();
-            }
-        }, true);
+        LocationFetchManager.getInstance(this).fetchLocationContinuously();
     }
 
     private void startLocationService(){
@@ -91,5 +93,38 @@ public class MainActivity extends AppCompatActivity {
         }else {
             Toast.makeText(this, "unable to stop service now, please try again later", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    public void startFetching(View view) {
+        try {
+            Intent intent = new Intent();
+            String manufacturer = android.os.Build.MANUFACTURER;
+            if ("xiaomi".equalsIgnoreCase(manufacturer)) {
+                intent.setComponent(new ComponentName("com.miui.securitycenter", "com.miui.permcenter.autostart.AutoStartManagementActivity"));
+            } else if ("oppo".equalsIgnoreCase(manufacturer)) {
+                intent.setComponent(new ComponentName("com.coloros.safecenter", "com.coloros.safecenter.permission.startup.StartupAppListActivity"));
+            } else if ("vivo".equalsIgnoreCase(manufacturer)) {
+                intent.setComponent(new ComponentName("com.vivo.permissionmanager", "com.vivo.permissionmanager.activity.BgStartUpManagerActivity"));
+            }
+
+            List<ResolveInfo> list = getPackageManager().queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY);
+            if  (list.size() > 0) {
+                startActivity(intent);
+            }
+        } catch (Exception e) {
+        }
+        startLocationServiceDefault();
+    }
+
+    public void stopFetching(View view) {
+        stopLocationServiceDefault();
+    }
+
+    private void stopLocationServiceDefault() {
+        LocationFetchManager.getInstance(this).stopCurrentLocationService();
+    }
+
+    public void help(View view) {
+        LocationFetchManager.getInstance(this).openHelpActivity();
     }
 }
